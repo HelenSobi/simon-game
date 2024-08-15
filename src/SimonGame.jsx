@@ -1,26 +1,28 @@
 import { useState, useEffect } from 'react';
 
 const SimonGame = () => {
-  const [level, setLevel] = useState(1);
+  const [level, setLevel] = useState(0);
   const [started, setStarted] = useState(false);
-  const [text, setText] = useState("Press A Key to Start");
+  const [text, setText] = useState("Press A Key or Tap to Start");
   const [gamePattern, setGamePattern]=useState([]);
   const [userPattern, setUserPattern]=useState([])
   const colors=["green","red","yellow","blue"];
 
   useEffect(()=>{
-    const handleKeyPress = ()=>{
+    const handleStart = ()=>{
       if(!started){
-        setText(`Level ${level}`);
         setStarted(true);
         nextSequence();
       }
     }
-    window.addEventListener("keydown",handleKeyPress);
-    return () =>{
-      window.removeEventListener("keydown",handleKeyPress);
-    }
-  },[started]);
+    window.addEventListener("keydown", handleStart);
+    window.addEventListener("touchstart", handleStart); // For mobile devices
+
+    return () => {
+      window.removeEventListener("keydown", handleStart);
+      window.removeEventListener("touchstart", handleStart);
+    };
+  }, [started, level]);
 
   useEffect(()=>{
     if(userPattern.length>0){
@@ -31,6 +33,11 @@ const SimonGame = () => {
 
   const nextSequence=()=>{
     setUserPattern([]);
+    setLevel((prevLevel) => {
+      const newLevel = prevLevel + 1;
+      setText(`LEVEL ${newLevel}`);
+      return newLevel;
+    });
     const randomColor=colors[Math.floor(Math.random()*colors.length)];
     setGamePattern((prevPattern)=>{
       return [...prevPattern,randomColor];
@@ -40,18 +47,13 @@ const SimonGame = () => {
   const checkAnswer =(userlevel)=>{
     if(gamePattern[userlevel] === userPattern[userlevel]){
       if(gamePattern.length === userPattern.length){
-        setLevel((prevLevel)=>{
-          const levelInc=prevLevel+1;
-          setText(`Level ${levelInc}`);
-          return prevLevel+1;
-        })
         setTimeout(()=>{
           nextSequence();
         },1000)
       }
     }
       else{
-        setText(`Game Over, Press Any Key to Restart`);
+        setText(`Game Over, Press Any Key or Tap to Restart`);
         addClassGameover("game-over");
         playSound("wrong");
         startOver();
@@ -61,7 +63,7 @@ const SimonGame = () => {
     setGamePattern([]);
     setUserPattern([]);
     setLevel(0);
-
+    setStarted(false);
   }
   const handleButtonClick = (currPattern) =>{
     addClass(currPattern);
