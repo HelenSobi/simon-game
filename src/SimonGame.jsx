@@ -16,9 +16,9 @@ const SimonGame = () => {
         nextSequence();
       }
     }
-    window.addEventListener("keypress",handleKeyPress);
+    window.addEventListener("keydown",handleKeyPress);
     return () =>{
-      window.removeEventListener("keypress",handleKeyPress);
+      window.removeEventListener("keydown",handleKeyPress);
     }
   },[started]);
 
